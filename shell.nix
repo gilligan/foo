@@ -4,8 +4,9 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, aeson, base, bytestring, servant
-      , servant-server, stdenv, text, transformers, wai, wai-extra, warp
+  f = { mkDerivation, aeson, base, bytestring, hspec, http-client
+      , http-types, servant, servant-client, servant-server, stdenv, text
+      , transformers, wai, wai-extra, warp
       }:
       mkDerivation {
         pname = "hairport";
@@ -17,8 +18,10 @@ let
           aeson base bytestring servant servant-server text transformers wai
           wai-extra warp
         ];
-        executableHaskellDepends = [
-          aeson base servant servant-server transformers wai warp
+        executableHaskellDepends = [ base ];
+        testHaskellDepends = [
+          aeson base hspec http-client http-types servant servant-client
+          servant-server transformers wai warp
         ];
         homepage = "https://github.hc.ag/tpflug/hairport";
         description = "Haskell/Servant based airport service";

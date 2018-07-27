@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Lib (runApp) where
+module Lib  where
 
 import Data.Aeson
 import GHC.Generics
@@ -19,7 +19,9 @@ data Foo = Foo { fooId :: Integer
 instance ToJSON Foo
 instance FromJSON Foo
 
-type FooApi = "foo" :> Get '[JSON] [Foo]
+type FooApi = 
+    "foo" :> Get '[JSON] [Foo] :<|>
+    "foo" :> Capture "fooId" Integer :> Get '[JSON] Foo
 
 fooApi :: Proxy FooApi
 fooApi = Proxy
@@ -34,10 +36,14 @@ runApp = do
   runSettings settings =<< mkApp
 
 server :: Server FooApi
-server = getFoos
+server = getFoos :<|>
+         getFooById
 
 mkApp :: IO Application
 mkApp = return $ serve fooApi server
+
+getFooById :: Integer -> Handler Foo
+getFooById n = return $ Foo n (show n)
 
 getFoos :: Handler [Foo]
 getFoos = return [ Foo 0 "first foo"
