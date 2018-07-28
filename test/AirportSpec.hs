@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module AirportSpec where
 
 import qualified Data.Text as T
@@ -5,13 +7,15 @@ import qualified Data.Text as T
 import Servant
 import Test.Hspec
 
-import Lib
+import Api
+import Api.Airport
+import Models
 
 testAirports :: [Airport]
-testAirports = [ Airport (T.pack "HAM") (T.pack "Hamburg")
-               , Airport (T.pack "BER") (T.pack "Berlin")
-               , Airport (T.pack "ZRH") (T.pack "Zurich")
-               , Airport (T.pack "MUC") (T.pack "Munich")
+testAirports = [ Airport "HAM" "Hamburg"
+               , Airport "BER" "Berlin"
+               , Airport "ZRH" "Zurich"
+               , Airport "MUC" "Munich"
                ]
 
 shouldSucceedWith stmt res = runHandler stmt `shouldReturn` Right res
