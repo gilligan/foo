@@ -1,0 +1,5 @@
+{
+    "appPort": 3000,
+    "mongoUri": "",
+    "gracePeriodSec": 100
+}

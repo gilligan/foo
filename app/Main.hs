@@ -6,10 +6,20 @@ import Servant
 import System.IO
 
 import Api
+import Config
 
 main :: IO ()
-main = runSettings settings =<< mkApp
+main = do
+    cfg <- loadConfig
+    case cfg of
+        Nothing    -> error "No configuration found. Exiting"
+        (Just cfg) -> startApp cfg
+
+startApp :: Config -> IO ()
+startApp cfg =
+    runSettings settings =<< mkApp
     where
-        settings = setPort 3000 $
-            setBeforeMainLoop (hPutStrLn stderr "Listening on port 3000")
+        port = appPort cfg
+        settings = setPort port $
+            setBeforeMainLoop (hPutStrLn stderr $ "Listening on port " ++ show port)
             defaultSettings

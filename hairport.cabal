@@ -21,13 +21,13 @@ executable hairport
                      , wai
                      , warp
   default-language:    Haskell2010
-  ghc-options:         -fwarn-unused-imports
 
 library
   default-language:    Haskell2010
   hs-source-dirs:      src
   exposed-modules:     Api
                      , Api.Airport
+                     , Config
                      , Models
   build-depends:       base >=4.10 && <4.11
                      , aeson
@@ -39,14 +39,13 @@ library
                      , wai
                      , wai-extra
                      , warp
-  ghc-options:       -fwarn-unused-imports
+                     , directory
 
 test-suite spec
     type:              exitcode-stdio-1.0
     main-is:           Spec.hs
     hs-source-dirs:    test
     default-language:    Haskell2010
-    ghc-options:       -fwarn-unused-imports
     other-modules:     AirportSpec
     build-depends:     base
                      , servant
