@@ -9,6 +9,7 @@ import Test.Hspec
 
 import Api
 import Api.Airport
+import Api.Health
 import Models
 
 testAirports :: [Airport]
@@ -28,11 +29,11 @@ spec = do
             listAirports Nothing `shouldSucceedWith` testAirports
 
         it "returns the airport idenfitied by filter" $
-            listAirports (Just $ T.pack "HAM") `shouldSucceedWith` [head testAirports]
+            listAirports (Just "HAM") `shouldSucceedWith` [head testAirports]
 
         it "returns nothing if iata code does not exist" $
-            listAirports (Just $ T.pack "___") `shouldSucceedWith` []
+            listAirports (Just "___") `shouldSucceedWith` []
 
     describe "healthCheck" $ 
         it "returns OK data" $
-            healthCheck `shouldSucceedWith` Health (T.pack "OK")
+            healthCheck `shouldSucceedWith` Health "OK"

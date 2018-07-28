@@ -27,6 +27,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Api
                      , Api.Airport
+                     , Api.Health
                      , Config
                      , Models
   build-depends:       base >=4.10 && <4.11

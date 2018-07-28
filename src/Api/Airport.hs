@@ -16,17 +16,10 @@ airports = [ Airport "HAM" "Hamburg"
                , Airport "MUC" "Munich"
                ]
 
-type AirportApi =
-    "airports"    :> QueryParam "iata" T.Text :> Get '[JSON] [Airport] :<|>
-    "healthcheck" :> Get '[JSON] Health
+type AirportApi = "airports" :> QueryParam "iata" T.Text :> Get '[JSON] [Airport]
 
-server :: Server AirportApi
-server =
-    listAirports :<|>
-    healthCheck
-
-healthCheck :: Handler Health
-healthCheck = return $ Health (T.pack "OK")
+airportServer :: Server AirportApi
+airportServer = listAirports
 
 listAirports :: Maybe T.Text -> Handler [Airport]
 listAirports Nothing     = return airports

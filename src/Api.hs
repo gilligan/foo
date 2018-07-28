@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeOperators #-}
+
 module Api (mkApp)  where
 
 import qualified Data.Text as T
@@ -11,9 +13,12 @@ import System.IO
 
 import Models
 import Api.Airport
+import Api.Health
 
-airportApi :: Proxy AirportApi
-airportApi = Proxy
+type AppAPI = AirportApi :<|> HealthApi
+
+appAPI :: Proxy AppAPI
+appAPI = Proxy
 
 mkApp :: IO Application
-mkApp = return $ serve airportApi server
+mkApp = return $ serve appAPI $ airportServer :<|> healthServer

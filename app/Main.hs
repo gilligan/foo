@@ -17,7 +17,7 @@ main = do
 
 startApp :: Config -> IO ()
 startApp cfg =
-    runSettings settings =<< mkApp
+    mkApp >>= runSettings settings
     where
         port = appPort cfg
         settings = setPort port $
