@@ -41,7 +41,7 @@ test-suite spec
     hs-source-dirs:    test
     default-language:    Haskell2010
     ghc-options:       -fwarn-unused-imports
-    other-modules:     FooSpec
+    other-modules:     AirportSpec
     build-depends:     base
                      , servant
                      , servant-server
@@ -55,3 +55,4 @@ test-suite spec
                      , warp
                      , http-client
                      , http-types
+                     , text
