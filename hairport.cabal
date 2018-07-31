@@ -41,6 +41,7 @@ library
                      , wai-extra
                      , warp
                      , directory
+                     , mongoDB
 
 test-suite spec
     type:              exitcode-stdio-1.0

@@ -5,8 +5,8 @@ let
   inherit (nixpkgs) pkgs;
 
   f = { mkDerivation, aeson, base, bytestring, directory, hspec
-      , http-client, http-types, servant, servant-client, servant-server
-      , stdenv, text, transformers, wai, wai-extra, warp
+      , http-client, http-types, mongoDB, servant, servant-client
+      , servant-server, stdenv, text, transformers, wai, wai-extra, warp
       }:
       mkDerivation {
         pname = "hairport";
@@ -15,7 +15,7 @@ let
         isLibrary = true;
         isExecutable = true;
         libraryHaskellDepends = [
-          aeson base bytestring directory servant servant-server text
+          aeson base bytestring directory mongoDB servant servant-server text
           transformers wai wai-extra warp
         ];
         executableHaskellDepends = [

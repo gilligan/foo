@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Network.Wai
@@ -16,7 +18,7 @@ main = do
         (Just cfg) -> startApp cfg
 
 startApp :: Config -> IO ()
-startApp cfg =
+startApp cfg = do
     mkApp >>= runSettings settings
     where
         port = appPort cfg
