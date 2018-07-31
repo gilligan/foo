@@ -18,8 +18,7 @@ main = do
         (Just cfg) -> startApp cfg
 
 startApp :: Config -> IO ()
-startApp cfg = do
-    mkApp >>= runSettings settings
+startApp cfg = runSettings settings (mkApp cfg)
     where
         port = appPort cfg
         settings = setPort port $

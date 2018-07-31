@@ -5,7 +5,7 @@ let
   inherit (nixpkgs) pkgs;
 
   f = { mkDerivation, aeson, base, bytestring, directory, hspec
-      , http-client, http-types, mongoDB, servant, servant-client
+      , http-client, http-types, mongoDB, mtl, servant, servant-client
       , servant-server, stdenv, text, transformers, wai, wai-extra, warp
       }:
       mkDerivation {
@@ -15,8 +15,8 @@ let
         isLibrary = true;
         isExecutable = true;
         libraryHaskellDepends = [
-          aeson base bytestring directory mongoDB servant servant-server text
-          transformers wai wai-extra warp
+          aeson base bytestring directory mongoDB mtl servant servant-server
+          text transformers wai wai-extra warp
         ];
         executableHaskellDepends = [
           base servant servant-server wai warp

@@ -2,12 +2,27 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Api.Airport where
+module Api.Airport (
+      AirportApi
+    , airportApi
+    , airportServer
+    ) where
+
+import Control.Monad.Except  (MonadIO, liftIO)
 
 import qualified Data.Text as T
 import Servant
 
+import Types
 import Models
+
+type AirportApi = "airports" :> QueryParam "iata" T.Text :> Get '[JSON] [Airport]
+
+airportApi :: Proxy AirportApi
+airportApi = Proxy
+
+airportServer :: MonadIO m => ServerT AirportApi (AppT m)
+airportServer = listAirports
 
 airports :: [Airport]
 airports = [ Airport "HAM" "Hamburg"
@@ -16,11 +31,7 @@ airports = [ Airport "HAM" "Hamburg"
                , Airport "MUC" "Munich"
                ]
 
-type AirportApi = "airports" :> QueryParam "iata" T.Text :> Get '[JSON] [Airport]
 
-airportServer :: Server AirportApi
-airportServer = listAirports
-
-listAirports :: Maybe T.Text -> Handler [Airport]
+listAirports :: MonadIO m => Maybe T.Text -> AppT m [Airport]
 listAirports Nothing     = return airports
 listAirports (Just iata) = return $ filter (\a -> iataCode a == iata) airports

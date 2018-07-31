@@ -21,7 +21,7 @@ data Config = Config {
                        appPort  :: Int
                      , mongoUri :: T.Text
                      , gracePeriodSec :: Integer
-                     } deriving (Show, Generic)
+                     } deriving (Eq, Show, Generic)
 
 instance ToJSON Config
 instance FromJSON Config

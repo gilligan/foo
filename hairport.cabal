@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 executable hairport
   main-is:             Main.hs
   hs-source-dirs:      app
-  build-depends:       base >=4.10 && <4.11
+  build-depends:       base >=4.10
                      , hairport
                      , servant
                      , servant-server
@@ -30,7 +30,8 @@ library
                      , Api.Health
                      , Config
                      , Models
-  build-depends:       base >=4.10 && <4.11
+                     , Types
+  build-depends:       base >=4.10
                      , aeson
                      , bytestring
                      , servant
@@ -42,6 +43,7 @@ library
                      , warp
                      , directory
                      , mongoDB
+                     , mtl
 
 test-suite spec
     type:              exitcode-stdio-1.0
