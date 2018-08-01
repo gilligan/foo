@@ -7,16 +7,15 @@ module Db (
     , getAirports
     ) where
 
-import Control.Monad.Reader (asks)
-import Control.Monad.IO.Class
-import Database.MongoDB ((=:), (!?))
-
+import           Control.Monad.IO.Class
+import           Control.Monad.Reader (asks)
+import           Database.MongoDB ((=:), (!?))
+import           Data.Maybe (catMaybes)
 import qualified Database.MongoDB as Mongo
 import qualified Data.Text as T
 
-import Types
 import Models
-import Data.Maybe (catMaybes)
+import Types
 
 
 airportCollection :: Mongo.Database

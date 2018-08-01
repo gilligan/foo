@@ -8,11 +8,11 @@ module Api.Airport (
     , airportServer
     ) where
 
-import Control.Monad.Reader (asks)
-import Control.Monad.Except  (MonadIO, liftIO)
 
+import           Control.Monad.Except (MonadIO, liftIO)
+import           Control.Monad.Reader (asks)
 import qualified Data.Text as T
-import Servant
+import           Servant
 
 import Types
 import Models

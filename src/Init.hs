@@ -2,19 +2,16 @@
 
 module Init (startApp) where
 
-import Control.Monad
-import Data.Maybe
+import Control.Monad               (when)
+import Data.Maybe                  (isNothing, fromJust)
+import Network.Wai.Handler.Warp    (defaultSettings, runSettings, setBeforeMainLoop, setPort)
+import Safe                        (readMay)
+import System.IO                   (hPutStrLn, stderr)
+import System.Posix.Env            (getEnvDefault)
 
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Servant
-import System.IO
-import System.Posix.Env
-import Safe (readMay)
-
+import Api   (mkApp)
+import Db    (getConnection)
 import Types (Config(..))
-import Api
-import Db (getConnection)
 
 startApp :: IO ()
 startApp = do

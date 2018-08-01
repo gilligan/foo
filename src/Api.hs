@@ -3,22 +3,14 @@
 module Api (mkApp)  where
 
 import qualified Data.Text as T
+import           Control.Monad.Reader (runReaderT)
+import           Servant
 
-import Control.Monad.Reader (runReaderT)
-import Data.Aeson
-import GHC.Generics
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Servant
-import System.IO
-
-import Types (Config, AppT(..))
-import Models
+import Types        (Config, AppT(..))
 import Api.Airport
 import Api.Health
 
 type AppApi = AirportApi :<|> HealthApi
-
 
 appAPI :: Proxy AppApi
 appAPI = Proxy
