@@ -13,8 +13,17 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
 
-import Config
+import qualified Database.MongoDB as Mongo
 
+type MongoHost = String
+type MongoConn = Mongo.Pipe
+
+data Config = Config {
+                       appPort  :: Int
+                     , mongoUri :: String
+                     , gracePeriodSec :: Integer
+                     , dbConn :: MongoConn
+                     }
 newtype AppT m a = AppT { runApp :: ReaderT Config (ExceptT ServantErr m) a } 
     deriving (Functor, Applicative, Monad, MonadReader Config, MonadError ServantErr , MonadIO )
 

@@ -12,8 +12,7 @@ import Network.Wai.Handler.Warp
 import Servant
 import System.IO
 
-import Types
-import Config
+import Types (Config, AppT(..))
 import Models
 import Api.Airport
 import Api.Health

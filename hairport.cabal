@@ -25,7 +25,6 @@ library
                      , Api.Airport
                      , Api.Health
                      , Init
-                     , Config
                      , Models
                      , Types
                      , Db

@@ -12,9 +12,9 @@ import System.IO
 import System.Posix.Env
 import Safe (readMay)
 
+import Types (Config(..))
 import Api
 import Db (getConnection)
-import Config
 
 startApp :: IO ()
 startApp = do
