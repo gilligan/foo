@@ -8,6 +8,7 @@ module Api.Airport (
     , airportServer
     ) where
 
+import Control.Monad.Reader (asks)
 import Control.Monad.Except  (MonadIO, liftIO)
 
 import qualified Data.Text as T
@@ -15,6 +16,8 @@ import Servant
 
 import Types
 import Models
+import Db
+import Config
 
 type AirportApi = "airports" :> QueryParam "iata" T.Text :> Get '[JSON] [Airport]
 
@@ -33,5 +36,5 @@ airports = [ Airport "HAM" "Hamburg"
 
 
 listAirports :: MonadIO m => Maybe T.Text -> AppT m [Airport]
-listAirports Nothing     = return airports
-listAirports (Just iata) = return $ filter (\a -> iataCode a == iata) airports
+listAirports (Just iata) = asks dbConn >>= \conn -> liftIO $ getAirports conn [ "iataCode" =: iata ]
+listAirports Nothing     = asks dbConn >>= \conn -> liftIO $ getAirports conn [ ]
