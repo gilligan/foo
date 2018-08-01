@@ -12,7 +12,6 @@ import           Control.Monad.Reader (asks)
 import           Database.MongoDB ((=:), (!?))
 import           Data.Maybe (catMaybes)
 import qualified Database.MongoDB as Mongo
-import qualified Data.Text as T
 
 import Models
 import Types

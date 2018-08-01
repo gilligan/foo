@@ -2,7 +2,6 @@
 
 module Api (mkApp)  where
 
-import qualified Data.Text as T
 import           Control.Monad.Reader (runReaderT)
 import           Servant
 

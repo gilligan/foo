@@ -6,9 +6,9 @@ module Types where
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Reader
+import           Control.Monad.Trans.Class  ()
+import           Control.Monad.Trans.Except ()
+import           Control.Monad.Trans.Reader ()
 import qualified Database.MongoDB as Mongo
 import           Servant.Server
 

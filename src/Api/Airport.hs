@@ -9,8 +9,7 @@ module Api.Airport (
     ) where
 
 
-import           Control.Monad.Except (MonadIO, liftIO)
-import           Control.Monad.Reader (asks)
+import           Control.Monad.Except (MonadIO)
 import qualified Data.Text as T
 import           Servant
 
