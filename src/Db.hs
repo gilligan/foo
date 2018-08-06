@@ -5,6 +5,7 @@ module Db (
     , MongoConn
     , getConnection
     , getAirports
+    , getTimezones
     ) where
 
 import           Control.Monad.IO.Class
@@ -36,5 +37,17 @@ getAirports query = do
         where
         select = Mongo.rest =<< Mongo.find (Mongo.select query "airport")
 
+getTimezones :: MonadIO m => Mongo.Selector -> AppT m [Timezone]
+getTimezones query = do
+    conn <- asks dbConn
+    doc <- liftIO $ execDB conn airportCollection select
+    liftIO $ print (toTimezone <$> doc)
+    return $ catMaybes ( toTimezone <$> doc)
+        where
+            select = Mongo.rest =<< Mongo.find (Mongo.select query "timezone")
+
 toAirport :: Mongo.Document -> Maybe Airport
 toAirport d = Airport <$> (!?) d "iataCode" <*> (!?) d "names.fallback"
+
+toTimezone :: Mongo.Document -> Maybe Timezone
+toTimezone d = Timezone <$> (!?) d "iataCode" <*> (!?) d "timezone"

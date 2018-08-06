@@ -24,11 +24,12 @@ airportApi :: Proxy AirportApi
 airportApi = Proxy
 
 airportServer :: MonadIO m => ServerT AirportApi (AppT m)
-airportServer = listAirports :<|> getTimezones
+airportServer = listAirports :<|> listTimezones
 
 listAirports :: MonadIO m => Maybe T.Text -> AppT m [Airport]
 listAirports (Just iata) = getAirports [ "iataCode" =: iata ]
 listAirports Nothing     = getAirports [ ]
 
-getTimezones :: MonadIO m => Maybe T.Text -> AppT m [Timezone]
-getTimezones x = return [Timezone "BER" "Europe/Berlin"]
+listTimezones :: MonadIO m => Maybe T.Text -> AppT m [Timezone]
+listTimezones (Just iata) = getTimezones [ "iataCode" =: iata ]
+listTimezones Nothing     = getTimezones [ ]
