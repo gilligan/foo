@@ -18,13 +18,17 @@ import Models
 import Db
 
 type AirportApi = "airports" :> QueryParam "iata" T.Text :> Get '[JSON] [Airport]
+               :<|> "timezone" :> QueryParam "iata" T.Text :> Get '[JSON] [Timezone]
 
 airportApi :: Proxy AirportApi
 airportApi = Proxy
 
 airportServer :: MonadIO m => ServerT AirportApi (AppT m)
-airportServer = listAirports
+airportServer = listAirports :<|> getTimezones
 
 listAirports :: MonadIO m => Maybe T.Text -> AppT m [Airport]
 listAirports (Just iata) = getAirports [ "iataCode" =: iata ]
 listAirports Nothing     = getAirports [ ]
+
+getTimezones :: MonadIO m => Maybe T.Text -> AppT m [Timezone]
+getTimezones x = return [Timezone "BER" "Europe/Berlin"]
