@@ -27,9 +27,9 @@ airportServer :: MonadIO m => ServerT AirportApi (AppT m)
 airportServer = listAirports :<|> listTimezones
 
 listAirports :: MonadIO m => Maybe T.Text -> AppT m [Airport]
-listAirports (Just iata) = getAirports [ "iataCode" =: iata ]
-listAirports Nothing     = getAirports [ ]
+listAirports (Just iata) = getEntity [ "iataCode" =: iata ]
+listAirports Nothing     = getEntity [ ] 
 
 listTimezones :: MonadIO m => Maybe T.Text -> AppT m [Timezone]
-listTimezones (Just iata) = getTimezones [ "iataCode" =: iata ]
-listTimezones Nothing     = getTimezones [ ]
+listTimezones (Just iata) = getEntity [ "iataCode" =: iata ]
+listTimezones Nothing     = getEntity [ ]

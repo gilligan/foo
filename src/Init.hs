@@ -6,6 +6,7 @@ import Control.Monad               (when)
 import Data.Maybe                  (isNothing, fromJust)
 import Network.Wai.Handler.Warp    (defaultSettings, runSettings, setBeforeMainLoop, setPort)
 import Safe                        (readMay)
+import System.Exit                 (exitFailure)
 import System.IO                   (hPutStrLn, stderr)
 import System.Posix.Env            (getEnvDefault)
 
@@ -16,7 +17,7 @@ import Types (Config(..))
 startApp :: IO ()
 startApp = do
     cfg <- initConfig
-    when (isNothing cfg) (error "No configuration found. Exiting")
+    when (isNothing cfg) (putStrLn "No configuration found. Exiting" >> exitFailure)
     runWithConfig (fromJust cfg)
 
 runWithConfig :: Config -> IO ()
@@ -37,5 +38,5 @@ initConfig = do
         return $ Config <$> port
                         <*> Just mongoHost
                         <*> graceSecs
-                        <*> Just conn
+                        <*> conn
 

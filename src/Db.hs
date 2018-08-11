@@ -1,4 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Db ( 
       (=:)
@@ -6,45 +9,53 @@ module Db (
     , getConnection
     , getAirports
     , getTimezones
+    , getEntity
     ) where
 
+import           Control.Exception (IOException, catch)
 import           Control.Monad.IO.Class
 import           Control.Monad.Reader (asks)
 import           Database.MongoDB ((=:), (!?))
-import           Data.Maybe (catMaybes)
+import           Data.Maybe (mapMaybe)
 import qualified Database.MongoDB as Mongo
 
 import Models
 import Types
 
+class Entity thing where
+  collection :: Mongo.Database
+  format :: Mongo.Document -> Maybe thing
 
-airportCollection :: Mongo.Database
-airportCollection = "com_holidaycheck_app_unified_booking"
+instance Entity Airport where
+    collection = "airport"
+    format = toAirport
 
-getConnection :: MongoHost -> IO MongoConn
-getConnection host = do
-    putStr host
-    Mongo.connect $ Mongo.host host 
+instance Entity Timezone where
+    collection = "timezone"
+    format = toTimezone
 
-execDB :: (MonadIO m) => Mongo.Pipe -> Mongo.Database -> Mongo.Action m a -> m a
-execDB pipe = Mongo.access pipe Mongo.master
+-- | Retrieve an Entity from the database via the provided mongo query
+getEntity :: forall m res. (MonadIO m, Entity res) => Mongo.Selector -> AppT m [res]
+getEntity query = do
+    conn <- asks dbConn
+    doc <- liftIO $ execDB conn airportDatabase select
+    return $ mapMaybe format doc
+        where
+            select = Mongo.rest =<< Mongo.find (Mongo.select query (collection @res))
+            execDB pipe = Mongo.access pipe Mongo.master
+            airportDatabase = "com_holidaycheck_app_unified_booking"
+
+getConnection :: MongoHost -> IO (Maybe Mongo.Pipe)
+getConnection h = (Just <$> Mongo.connect (Mongo.host h)) `catch` errorHandler 
+    where
+        errorHandler (_ :: IOException) = putStrLn errorMsg >> return Nothing
+        errorMsg = "Failed to establish a connection to mongodb: " <> h
 
 getAirports :: MonadIO m => Mongo.Selector -> AppT m [Airport]
-getAirports query = do
-    conn <- asks dbConn
-    doc <- liftIO $ execDB conn airportCollection select
-    return $ catMaybes ( toAirport <$> doc)
-        where
-        select = Mongo.rest =<< Mongo.find (Mongo.select query "airport")
+getAirports = getEntity
 
 getTimezones :: MonadIO m => Mongo.Selector -> AppT m [Timezone]
-getTimezones query = do
-    conn <- asks dbConn
-    doc <- liftIO $ execDB conn airportCollection select
-    liftIO $ print (toTimezone <$> doc)
-    return $ catMaybes ( toTimezone <$> doc)
-        where
-            select = Mongo.rest =<< Mongo.find (Mongo.select query "timezone")
+getTimezones = getEntity
 
 toAirport :: Mongo.Document -> Maybe Airport
 toAirport d = Airport <$> (!?) d "iataCode" <*> (!?) d "names.fallback"
