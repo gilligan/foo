@@ -4,11 +4,13 @@ module Init (startApp) where
 
 import Control.Monad               (when)
 import Data.Maybe                  (isNothing, fromJust)
-import Network.Wai.Handler.Warp    (defaultSettings, runSettings, setBeforeMainLoop, setPort)
+import Network.Wai.Handler.Warp    (defaultSettings, runSettings, setBeforeMainLoop, setPort, setLogger)
 import Safe                        (readMay)
 import System.Exit                 (exitFailure)
 import System.IO                   (hPutStrLn, stderr)
 import System.Posix.Env            (getEnvDefault)
+
+import           Network.Wai.Logger                     (withStdoutLogger)
 
 import Api   (mkApp)
 import Db    (getConnection)
@@ -21,12 +23,14 @@ startApp = do
     runWithConfig (fromJust cfg)
 
 runWithConfig :: Config -> IO ()
-runWithConfig cfg = runSettings settings (mkApp cfg)
-    where
-        port = appPort cfg
-        settings = setPort port $
-            setBeforeMainLoop (hPutStrLn stderr $ "Listening on port " ++ show port)
-            defaultSettings
+runWithConfig cfg =
+    withStdoutLogger $ \logger -> do
+
+        let settings = setPort (appPort cfg) 
+                    $ setBeforeMainLoop (hPutStrLn stderr $ "Starting up service on port " ++ show (appPort cfg))
+                    $ setLogger logger defaultSettings
+
+        runSettings settings (mkApp cfg)
 
 initConfig :: IO (Maybe Config)
 initConfig = do

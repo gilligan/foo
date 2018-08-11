@@ -22,9 +22,9 @@ import qualified Database.MongoDB as Mongo
 import Models
 import Types
 
-class Entity thing where
+class Entity a where
   collection :: Mongo.Database
-  format :: Mongo.Document -> Maybe thing
+  format :: Mongo.Document -> Maybe a
 
 instance Entity Airport where
     collection = "airport"
