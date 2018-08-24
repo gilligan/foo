@@ -6,6 +6,7 @@
 module Db ( 
       (=:)
     , MongoConn
+    , Mongo.Selector
     , getConnection
     , getAirports
     , getTimezones
@@ -21,6 +22,7 @@ import qualified Database.MongoDB as Mongo
 
 import Models
 import Types
+
 
 class Entity a where
   collection :: Mongo.Database
