@@ -47,11 +47,10 @@ getEntity query = do
             execDB pipe = Mongo.access pipe Mongo.master
             airportDatabase = "com_holidaycheck_app_unified_booking"
 
-getConnection :: MongoHost -> IO (Maybe Mongo.Pipe)
-getConnection h = (Just <$> Mongo.connect (Mongo.host h)) `catch` errorHandler 
+getConnection :: a -> MongoHost -> IO (Either a Mongo.Pipe)
+getConnection x h = (Right <$> Mongo.connect (Mongo.host h)) `catch` errorHandler 
     where
-        errorHandler (_ :: IOException) = putStrLn errorMsg >> return Nothing
-        errorMsg = "Failed to establish a connection to mongodb: " <> h
+        errorHandler (_ :: IOException) = return $ Left x
 
 getAirports :: MonadIO m => Mongo.Selector -> AppT m [Airport]
 getAirports = getEntity
