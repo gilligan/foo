@@ -47,10 +47,12 @@ getEntity query = do
             execDB pipe = Mongo.access pipe Mongo.master
             airportDatabase = "com_holidaycheck_app_unified_booking"
 
-getConnection :: a -> MongoHost -> IO (Either a Mongo.Pipe)
-getConnection x h = (Right <$> Mongo.connect (Mongo.host h)) `catch` errorHandler 
+getConnection :: MongoHost -> IO (Either InitError Mongo.Pipe)
+getConnection h = (Right <$> Mongo.connect mongoHost) `catch` errorHandler 
     where
-        errorHandler (_ :: IOException) = return $ Left x
+        errorHandler (_ :: IOException) = return $ Left InitErrorDbConnection
+        mongoHost = Mongo.Host h (Mongo.PortNumber (fromIntegral mongoPort))
+        mongoPort = 27017 :: Integer
 
 getAirports :: MonadIO m => Mongo.Selector -> AppT m [Airport]
 getAirports = getEntity

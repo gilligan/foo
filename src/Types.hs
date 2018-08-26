@@ -16,6 +16,12 @@ type MongoHost = String
 type MongoConn = Mongo.Pipe
 type App       = AppT IO
 
+data InitError = ConfigErrorPort
+               | ConfigErrorHost
+               | ConfigErrorGraceSecs
+               | InitErrorDbConnection
+               deriving (Show, Eq)
+
 data Config = Config {
                        appPort  :: Int
                      , mongoUri :: String

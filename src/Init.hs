@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Init (startApp) where
 
@@ -7,22 +9,23 @@ import Safe                        (readMay)
 import System.Exit                 (exitFailure)
 import System.IO                   (hPutStrLn, stderr)
 import System.Posix.Env            (getEnv)
-
-import           Network.Wai.Logger                     (withStdoutLogger)
+import Control.Monad.Except
+import Network.Wai.Logger          (withStdoutLogger)
 
 import Api   (mkApp)
 import Db    (getConnection)
-import Types (Config(..))
+import Types (Config(..), InitError(..))
 
 startApp :: IO ()
-startApp = do
-    cfg <- initConfig
-    case cfg of
-        Right c -> runWithConfig c
-        Left  err -> reportError err >> exitFailure
+startApp = initConfig >>= \case
+    Right c -> runWithConfig c
+    Left  err -> putStrLn (reportError err) >> exitFailure
 
-reportError :: InitError -> IO ()
-reportError = putStr . show
+reportError :: InitError -> String
+reportError ConfigErrorPort = "Error: service port not configured. Please set the APP_PORT environment variable"
+reportError ConfigErrorHost = "Error: mongo host is not configured. Please set the MONGO_URI environment variable"
+reportError InitErrorDbConnection = "Error: failed to connect to mongo database"
+reportError ConfigErrorGraceSecs = "Error: grace shutdown timeout not configured. Please set the GRACE_PERIOD_SEC environment variable"
     
 runWithConfig :: Config -> IO ()
 runWithConfig cfg =
@@ -34,34 +37,27 @@ runWithConfig cfg =
 
         runSettings settings (mkApp cfg)
 
+
 maybeToEither :: a -> Maybe b -> Either a b
 maybeToEither = flip maybe Right . Left
 
-readEnv :: Read b => a -> String -> IO (Either a b)
-readEnv err str = do
-    x <- getEnv str
-    return $ case x of
-        (Just val) -> maybeToEither err (readMay val)
-        Nothing    -> Left err
+getEnvWith :: (String -> Maybe b) -> a -> String -> ExceptT a IO b
+getEnvWith readF err str =  liftIO (getEnv str) >>= \case
+  Just val -> liftEither $ maybeToEither err (readF val)
+  Nothing  -> throwError err
 
-data InitError = ConfigErrorPort
-               | ConfigErrorHost
-               | ConfigErrorGraceSecs
-               | InitErrorDbConnection
-               deriving (Show, Eq)
-              
+readEnv :: Read b => a -> String -> ExceptT a IO b
+readEnv = getEnvWith readMay
+
+readEnvStr :: a -> String -> ExceptT a IO String
+readEnvStr = getEnvWith Just
 
 initConfig :: IO (Either InitError Config)
-initConfig = do
+initConfig = runExceptT $ do
     port <- readEnv ConfigErrorPort "APP_PORT"
-    mongoHost <- readEnv ConfigErrorHost "MONGO_URI"
+    mongoHost <- readEnvStr ConfigErrorHost "MONGO_URI"
     graceSecs <- readEnv ConfigErrorGraceSecs "GRACE_PERIOD_SEC"
-    
-    conn <- case mongoHost of
-        Right h -> getConnection InitErrorDbConnection h
-        Left  x -> return $ Left x
 
-    return $ Config <$> port
-                    <*> mongoHost
-                    <*> graceSecs
-                    <*> conn
+    connection <- ExceptT $ getConnection mongoHost
+    return $ Config port mongoHost graceSecs connection
+

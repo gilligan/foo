@@ -14,7 +14,17 @@ let
 
   hairport-ghcid = pkgs.writeScriptBin "hairport-ghcid"
   ''
+    #!${pkgs.stdenv.shell}
     ${ghc.ghcid}/bin/ghcid -c "${ghc.cabal-install}/bin/cabal new-repl library:hairport"
+  '';
+
+  hairport-dev = pkgs.writeScriptBin "hairport-dev"
+  ''
+    #!${pkgs.stdenv.shell}
+    export APP_PORT=3000
+    export MONGO_URI=127.0.0.1
+    export GRACE_PERIOD_SEC=5000 
+    ${ghc.cabal-install}/bin/cabal run
   '';
 
 in rec {
@@ -25,6 +35,6 @@ in rec {
                                   pkgs.haskellPackages.ghcid 
                                   pkgs.haskellPackages.stylish-haskell 
                                   hairport-ghcid
+                                  hairport-dev
                                 ];
-
 }
