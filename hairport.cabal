@@ -46,6 +46,7 @@ library
                      , unix
                      , safe
                      , wai-logger
+                     , resource-pool
 test-suite spec
     type:              exitcode-stdio-1.0
     main-is:           Spec.hs

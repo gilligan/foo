@@ -11,6 +11,7 @@ import           Control.Monad.Trans.Except ()
 import           Control.Monad.Trans.Reader ()
 import qualified Database.MongoDB as Mongo
 import           Servant.Server
+import           Data.Pool
 
 type MongoHost = String
 type MongoConn = Mongo.Pipe
@@ -26,9 +27,12 @@ data Config = Config {
                        appPort  :: Int
                      , mongoUri :: String
                      , gracePeriodSec :: Integer
-                     , dbConn :: MongoConn
                      }
 
-newtype AppT m a = AppT { runApp :: ReaderT Config (ExceptT ServantErr m) a } 
-    deriving (Functor, Applicative, Monad, MonadReader Config, MonadError ServantErr , MonadIO )
+data Ctx = Ctx { cfg  :: Config
+               , pool :: Pool MongoConn
+               }
+
+newtype AppT m a = AppT { runApp :: ReaderT Ctx (ExceptT ServantErr m) a } 
+    deriving (Functor, Applicative, Monad, MonadReader Ctx, MonadError ServantErr , MonadIO )
 

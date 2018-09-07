@@ -8,6 +8,8 @@ module Db (
     , MongoConn
     , Mongo.Selector
     , getConnection
+    , getConnection'
+    , closeConnection
     , getAirports
     , getTimezones
     , getEntity
@@ -15,9 +17,10 @@ module Db (
 
 import           Control.Exception (IOException, catch)
 import           Control.Monad.IO.Class
-import           Control.Monad.Reader (asks)
+import           Control.Monad.Reader (ask)
 import           Database.MongoDB ((=:), (!?))
 import           Data.Maybe (mapMaybe)
+import           Data.Pool
 import qualified Database.MongoDB as Mongo
 
 import Models
@@ -39,13 +42,19 @@ instance Entity Timezone where
 -- | Retrieve an Entity from the database via the provided mongo query
 getEntity :: forall m res. (MonadIO m, Entity res) => Mongo.Selector -> AppT m [res]
 getEntity query = do
-    conn <- asks dbConn
-    doc <- liftIO $ execDB conn airportDatabase select
+    ctx <- ask
+    doc <- liftIO $ withResource (pool ctx) (\conn -> execDB conn airportDatabase select)
     return $ mapMaybe format doc
         where
             select = Mongo.rest =<< Mongo.find (Mongo.select query (collection @res))
             execDB pipe = Mongo.access pipe Mongo.master
             airportDatabase = "com_holidaycheck_app_unified_booking"
+
+closeConnection :: Mongo.Pipe -> IO ()
+closeConnection = Mongo.close
+
+getConnection' :: MongoHost -> IO Mongo.Pipe
+getConnection' h = Mongo.connect $ Mongo.host h
 
 getConnection :: MongoHost -> IO (Either InitError Mongo.Pipe)
 getConnection h = (Right <$> Mongo.connect mongoHost) `catch` errorHandler 
