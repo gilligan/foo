@@ -5,7 +5,7 @@ module Api (mkApp)  where
 import           Control.Monad.Reader (runReaderT)
 import           Servant
 
-import Types        (Ctx(..), AppT(..))
+import Types        (AppCtx(..), AppT(..))
 import Api.Airport
 import Api.Health
 
@@ -15,15 +15,15 @@ appAPI :: Proxy AppApi
 appAPI = Proxy
 
 -- | Creates a Server for the airport API running in our AppT transformer
-appToServer :: Ctx -> Server AirportApi
+appToServer :: AppCtx -> Server AirportApi
 appToServer ctx = hoistServer airportApi (convertApp ctx) airportServer
 
 -- | Converts a handler running in (AppT IO) into
 --   (Handler a) as expected by Servant
-convertApp :: Ctx -> AppT IO a -> Handler a
+convertApp :: AppCtx -> AppT IO a -> Handler a
 convertApp ctx app = Handler $ runReaderT (runApp app) ctx
 
 -- | Take a configuration and return an Application that can be 
 -- server by WAI.
-mkApp :: Ctx -> Application
+mkApp :: AppCtx -> Application
 mkApp ctx = serve appAPI (appToServer ctx :<|> healthServer)

@@ -15,7 +15,7 @@ import Data.Pool
 
 import Api   (mkApp)
 import Db    (getConnection', closeConnection)
-import Types (Ctx(..), Config(..), InitError(..))
+import Types (AppCtx(..), AppConfig(..), InitError(..))
 
 startApp :: IO ()
 startApp = initConfig >>= \case
@@ -28,7 +28,7 @@ reportError ConfigErrorHost = "Error: mongo host is not configured. Please set t
 reportError InitErrorDbConnection = "Error: failed to connect to mongo database"
 reportError ConfigErrorGraceSecs = "Error: grace shutdown timeout not configured. Please set the GRACE_PERIOD_SEC environment variable"
     
-runWithConfig :: Config -> IO ()
+runWithConfig :: AppConfig -> IO ()
 runWithConfig config = do
     dbPool <- createPool (getConnection' (mongoUri config)) closeConnection 25 2000 10
 
@@ -37,7 +37,7 @@ runWithConfig config = do
                     $ setBeforeMainLoop (hPutStrLn stderr $ "Starting up service on port " ++ show (appPort config))
                     $ setLogger logger defaultSettings
 
-        runSettings settings (mkApp $ Ctx config dbPool)
+        runSettings settings (mkApp $ AppCtx config dbPool)
 
 
 maybeToEither :: a -> Maybe b -> Either a b
@@ -54,10 +54,10 @@ readEnv = getEnvWith readMay
 readEnvStr :: a -> String -> ExceptT a IO String
 readEnvStr = getEnvWith Just
 
-initConfig :: IO (Either InitError Config)
+initConfig :: IO (Either InitError AppConfig)
 initConfig = runExceptT $ do
-    port <- readEnv ConfigErrorPort "APP_PORT"
+    port      <- readEnv ConfigErrorPort "APP_PORT"
     mongoHost <- readEnvStr ConfigErrorHost "MONGO_URI"
     graceSecs <- readEnv ConfigErrorGraceSecs "GRACE_PERIOD_SEC"
 
-    return $ Config port mongoHost graceSecs
+    return $ AppConfig port mongoHost graceSecs

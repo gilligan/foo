@@ -23,16 +23,15 @@ data InitError = ConfigErrorPort
                | InitErrorDbConnection
                deriving (Show, Eq)
 
-data Config = Config {
-                       appPort  :: Int
-                     , mongoUri :: String
-                     , gracePeriodSec :: Integer
+data AppConfig = AppConfig { appPort  :: Int
+                           , mongoUri :: String
+                           , gracePeriodSec :: Integer
+                           }
+
+data AppCtx = AppCtx { cfg  :: AppConfig
+                     , pool :: Pool MongoConn
                      }
 
-data Ctx = Ctx { cfg  :: Config
-               , pool :: Pool MongoConn
-               }
-
-newtype AppT m a = AppT { runApp :: ReaderT Ctx (ExceptT ServantErr m) a } 
-    deriving (Functor, Applicative, Monad, MonadReader Ctx, MonadError ServantErr , MonadIO )
+newtype AppT m a = AppT { runApp :: ReaderT AppCtx (ExceptT ServantErr m) a } 
+    deriving (Functor, Applicative, Monad, MonadReader AppCtx, MonadError ServantErr , MonadIO )
 
